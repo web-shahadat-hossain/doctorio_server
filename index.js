@@ -14,12 +14,33 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-client.connect((err) => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  console.log("hi");
-  client.close();
-});
+
+async function run() {
+  try {
+    await client.connect();
+    const doctorCollection = client.db("doctorio").collection("doctor");
+    const appointmentCollection = client
+      .db("doctorio")
+      .collection("appointment");
+
+    // Doctor get all Api code start Here
+    app.get("/doctor", async (req, res) => {
+      const doctor = await doctorCollection.find({}).toArray();
+      res.send(doctor);
+    });
+
+    // appointment post api code start here
+    app.post("/appointment", async (req, res) => {
+      const appointment = req.body;
+      const doc = appointment;
+      const result = await appointmentCollection.insertOne(doc);
+      res.send(result);
+    });
+  } finally {
+  }
+}
+
+run().catch(console.dir);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
